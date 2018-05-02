@@ -11,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.arvin.refactoringmusicapp.DetailActivity;
 import com.example.arvin.refactoringmusicapp.R;
 import com.example.arvin.refactoringmusicapp.model.Artist;
 import java.util.LinkedList;
@@ -19,8 +20,6 @@ import java.util.List;
 public class SearchArtistAdapter extends RecyclerView.Adapter<SearchArtistAdapter.SearchArtistAdapterViewHolder> {
 
     List<Artist> mResult = new LinkedList<>();
-    Context context;
-
 
 
     @Override
@@ -72,18 +71,18 @@ public class SearchArtistAdapter extends RecyclerView.Adapter<SearchArtistAdapte
         @Override
         public void onClick(View v) {
 
-//            Intent intent = new Intent(v.getContext(), DetailActivity.class);
-//            intent.putExtra("image_url", response.getStrArtistThumb());
-//            intent.putExtra("bio", response.getStrBiographyEN());
-//            intent.putExtra("logo", response.getStrArtistLogo());
-//            intent.putExtra("fanart", response.getStrArtistFanart());
-//            intent.putExtra("fanart2", response.getStrArtistFanart2());
-//            intent.putExtra("fanart3", response.getStrArtistFanart3());
-//            intent.putExtra("banner", response.getStrArtistBanner());
-//
-//            v.getContext().startActivity(intent);
-//
-//            Toast.makeText(v.getContext(), mResult.get(getAdapterPosition()).getStrArtist(), Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(v.getContext(), DetailActivity.class);
+            intent.putExtra("image_url", response.getStrArtistThumb());
+            intent.putExtra("bio", response.getStrBiographyEN());
+            intent.putExtra("logo", response.getStrArtistLogo());
+            intent.putExtra("fanart", response.getStrArtistFanart());
+            intent.putExtra("fanart2", response.getStrArtistFanart2());
+            intent.putExtra("fanart3", response.getStrArtistFanart3());
+            intent.putExtra("banner", response.getStrArtistBanner());
+
+            v.getContext().startActivity(intent);
+
+            Toast.makeText(v.getContext(), mResult.get(getAdapterPosition()).getStrArtist(), Toast.LENGTH_SHORT).show();
         }
 
     }

@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements ArtistView {
     SearchArtistAdapter mSearchArtistAdapter;
     SearchView mSearchView;
     private ApiObservableArtistService mApiObservableArtistService;
+    ArtistView view;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,12 +50,12 @@ public class MainActivity extends AppCompatActivity implements ArtistView {
 
 
         mApiObservableInteractor = new ApiObservableInteratorImp();
-        mArtistPresenter = new ArtistPresenter(mApiObservableInteractor);
+        mArtistPresenter = new ArtistPresenter(mApiObservableInteractor , this);
         mArtistPresenter.bind(this);
         mRecyclerView = findViewById(R.id.artistList);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
         mSearchView = findViewById(R.id.artistSearchView);
-        loadData();
+        mArtistPresenter.loadData(mSearchView);
 
 
     }
@@ -72,68 +73,11 @@ public class MainActivity extends AppCompatActivity implements ArtistView {
         mSearchArtistAdapter = new SearchArtistAdapter();
         mSearchArtistAdapter.addArtistResponses(mList);
         mRecyclerView.setAdapter(mSearchArtistAdapter);
-        mRecyclerView.notify();
+        mSearchArtistAdapter.notifyDataSetChanged();
         Toast.makeText(this, mList.get(0).getStrArtist(), Toast.LENGTH_SHORT).show();
 
     }
 
-    @SuppressLint("CheckResult")
-    public void loadData() {
-//
-    try {
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://www.theaudiodb.com")
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        mApiObservableArtistService = retrofit.create(ApiObservableArtistService.class);
-
-            RxSearchView.queryTextChanges(mSearchView)
-                    .subscribeOn(AndroidSchedulers.mainThread())
-                    .debounce(100, TimeUnit.MILLISECONDS)
-                    .filter(new Predicate<CharSequence>() {
-                        @Override
-                        public boolean test(CharSequence charSequence) throws Exception {
-                            return !charSequence.toString().isEmpty();
-                        }
-                    })
-                    .distinctUntilChanged()
-                    .subscribeOn(Schedulers.io())
-                    .switchMap(new Function<CharSequence, ObservableSource<ArtistResponse>>() {
-                        @Override
-                        public ObservableSource<ArtistResponse> apply(CharSequence query) throws Exception {
-                            return mApiObservableInteractor.searchArtist(query.toString());
-
-
-                        }
-                    })
-
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Consumer<ArtistResponse>() {
-                                   @Override
-                                   public void accept(ArtistResponse response) throws Exception {
-
-
-                                       updateUi(response.getArtists());
-
-                                   }
-                               },
-                            new Consumer<Throwable>() {
-                                @Override
-                                public void accept(Throwable throwable) throws Exception {
-                                    Toast.makeText(MainActivity.this, throwable.getMessage(), Toast.LENGTH_LONG).show();
-                                  Log.d("Error" , throwable.getMessage());
-                                }
-                            });
-        } catch (Exception e) {
-            Log.d("Error" , e.getMessage());
-        }
-
-
-    }
 
 
 }
