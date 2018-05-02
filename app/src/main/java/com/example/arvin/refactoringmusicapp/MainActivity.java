@@ -72,6 +72,7 @@ public class MainActivity extends AppCompatActivity implements ArtistView {
         mSearchArtistAdapter = new SearchArtistAdapter();
         mSearchArtistAdapter.addArtistResponses(mList);
         mRecyclerView.setAdapter(mSearchArtistAdapter);
+        mRecyclerView.notify();
         Toast.makeText(this, mList.get(0).getStrArtist(), Toast.LENGTH_SHORT).show();
 
     }
@@ -88,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements ArtistView {
                 .build();
 
         mApiObservableArtistService = retrofit.create(ApiObservableArtistService.class);
-        
+
             RxSearchView.queryTextChanges(mSearchView)
                     .subscribeOn(AndroidSchedulers.mainThread())
                     .debounce(100, TimeUnit.MILLISECONDS)
@@ -98,11 +99,12 @@ public class MainActivity extends AppCompatActivity implements ArtistView {
                             return !charSequence.toString().isEmpty();
                         }
                     })
+                    .distinctUntilChanged()
                     .subscribeOn(Schedulers.io())
                     .switchMap(new Function<CharSequence, ObservableSource<ArtistResponse>>() {
                         @Override
                         public ObservableSource<ArtistResponse> apply(CharSequence query) throws Exception {
-                            return mApiObservableArtistService.searchArtist(query.toString());
+                            return mApiObservableInteractor.searchArtist(query.toString());
 
 
                         }
@@ -113,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements ArtistView {
                     .subscribe(new Consumer<ArtistResponse>() {
                                    @Override
                                    public void accept(ArtistResponse response) throws Exception {
+
 
                                        updateUi(response.getArtists());
 
